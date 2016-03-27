@@ -9,9 +9,10 @@ class SDLConan(ConanFile):
     version = "2.0.3"
     folder = "SDL2-%s" % version
     settings = "os", "arch", "compiler", "build_type"
-    options = {"directx": [True, False], "shared": [True, False]}
+    options = {"directx": [True, False], "shared": [True, False], "gles": [True, False]}
     default_options = '''directx=False
-    shared=True'''
+    shared=True
+    gles=False'''
     exports = "CMakeLists.txt"
     generators = "cmake"
     url="http://github.com/lasote/conan-sdl2"    
@@ -70,8 +71,9 @@ class SDLConan(ConanFile):
         cmake = CMake(self.settings)
          # Build
         directx_def = "-DDIRECTX=ON" if self.options.directx else "-DDIRECTX=OFF"
+        gles_def = "-DVIDEO_OPENGLES=ON -DVIDEO_OPENGL=OFF" if self.options.gles else "-DVIDEO_OPENGLES=OFF -DVIDEO_OPENGL=ON"
         self.run("cd %s &&  mkdir _build" % self.folder)
-        configure_command = 'cd %s/_build && cmake .. %s %s' % (self.folder, cmake.command_line, directx_def)
+        configure_command = 'cd %s/_build && cmake .. %s %s %s' % (self.folder, cmake.command_line, directx_def, gles_def)
         self.output.warn("Configure with: %s" % configure_command)
         self.run(configure_command)
         self.run("cd %s/_build && cmake --build . %s" % (self.folder, cmake.build_config))
